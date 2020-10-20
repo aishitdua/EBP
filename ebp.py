@@ -4,7 +4,7 @@ Created on Mon Sep 23 22:36:54 2019
 
 @author: DELL
 """
-
+__username__ = "aishitdua"
 
 from math import exp
 from csv import reader
@@ -71,6 +71,9 @@ def transfer(activation):
 
 # Forward propagate input to a network output
 def forward_propagate(network, row):
+    """
+    Function for forward propogation of the neural network
+    """
     inputs = row
     for layer in network:
         new_inputs = []
@@ -132,6 +135,9 @@ def draw(y):
     plt.plot(x, y, linewidth=2.0)
 # Train a network for a fixed number of epochs
 def evaluate_algorithm(dataset, algorithm, n_folds, *args):
+    """
+    Post training on the dataset, evalutaing the performance on k_folds(n_used here)
+    """
     folds = cross_validation_split(dataset, n_folds)
     scores = list()
     for fold in folds:
@@ -149,6 +155,10 @@ def evaluate_algorithm(dataset, algorithm, n_folds, *args):
         scores.append(accuracy)
     return scores
 def train_network(network, train, l_rate, n_epoch, n_outputs):
+    """
+    training the network using forward propagation and then sending the errors
+    into the backpropagation function
+    """
     errorsum=[]           # for the graph
     for epoch in range(n_epoch):
         sum_error = 0
@@ -162,6 +172,9 @@ def train_network(network, train, l_rate, n_epoch, n_outputs):
         errorsum.append(sum_error) 
     draw(errorsum )
 def predict(network, row): # for test_set
+    """
+    function used to predict how the model performs on test set
+    """
     outputs = forward_propagate(network, row)
     return outputs.index(max(outputs))
 def back_propagation(train, test, l_rate, n_epoch, n_hidden):
@@ -174,26 +187,25 @@ def back_propagation(train, test, l_rate, n_epoch, n_hidden):
         prediction = predict(network, row)
         predictions.append(prediction)
     return(predictions)
+if __name__ == '__main__':
+    # Test training backprop algorithm
+    seed(50)
+    # load and prepare data
+    filename = "dataset.csv"
+    dataset = load_csv(filename)
+    for i in range(len(dataset[0])-1):
+        str_column_to_int(dataset, i)
+    str_column_to_int(dataset, len(dataset[0])-1)
+    n_inputs = len(dataset[0]) - 1
+    print(n_inputs)
+    n_outputs = len(set([row[-1] for row in dataset])) 
+    print(n_outputs)
+    n_folds=6
+    lr=0.3
+    n_epoch=100
+    n_hidden=11
+    # dividing the data into k folds and mean accuracy
+    scores = evaluate_algorithm(dataset, back_propagation, n_folds, lr, n_epoch, n_hidden) #
 
-# Test training backprop algorithm
-seed(50)
-# load and prepare data
-filename = "dataset.csv"
-dataset = load_csv(filename)
-
-for i in range(len(dataset[0])-1):
-    str_column_to_int(dataset, i)
-str_column_to_int(dataset, len(dataset[0])-1)
-n_inputs = len(dataset[0]) - 1
-print(n_inputs)
-n_outputs = len(set([row[-1] for row in dataset])) 
-print(n_outputs)
-n_folds=6
-lr=0.3
-n_epoch=100
-n_hidden=11
-# dividing the data into k folds and mean accuracy
-scores = evaluate_algorithm(dataset, back_propagation, n_folds, lr, n_epoch, n_hidden) #
-
-print('Scores: %s' % scores)
-print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
+    print('Scores: %s' % scores)
+    print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
